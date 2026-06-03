@@ -3,6 +3,7 @@ import { parseFile } from "./lib/parse";
 import { saveDataset } from "./lib/db";
 import { generateDashboard } from "./lib/ai";
 import Charts from "./components/Charts";
+import ChatPopup from "./components/ChatPopup";
 
 const TYPE_COLORS = {
   number:   { bg: "rgba(96,165,250,0.15)",  fg: "#60a5fa" },
@@ -46,6 +47,12 @@ export default function App() {
     }
     setGenerating(false);
   }, []);
+
+  // Chat asked to modify the dashboard — apply + persist.
+  const applySpec = useCallback((newSpec) => {
+    setSpec(newSpec);
+    if (dataset) saveDataset({ ...dataset, spec: newSpec });
+  }, [dataset]);
 
   const handleFile = useCallback(async (file) => {
     if (!file) return;
@@ -221,6 +228,8 @@ export default function App() {
           </div>
         )}
       </main>
+
+      {dataset && <ChatPopup dataset={dataset} spec={spec} onSpecUpdate={applySpec} />}
     </div>
   );
 }
