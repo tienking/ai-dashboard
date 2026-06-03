@@ -93,7 +93,7 @@ async def generate(req: GenerateRequest):
         return _extract_json(resp.text)
     except Exception as e:
         print(f"generate error: {e}")
-        raise HTTPException(status_code=500, detail="Không tạo được dashboard. Thử lại sau.")
+        raise HTTPException(status_code=500, detail="Couldn't generate the dashboard. Please try again.")
 
 @router.post("/api/ai-dashboard/chat")
 async def chat(req: ChatRequest):
@@ -101,7 +101,7 @@ async def chat(req: ChatRequest):
     when the user asks to change/add/remove charts."""
     system = (
         "You are an AI data analyst assistant for a dashboard tool. You help the user understand "
-        "their dataset and adjust the dashboard. Reply in the user's language (Vietnamese if they write Vietnamese).\n\n"
+        "their dataset and adjust the dashboard. Always reply in English.\n\n"
         "You can SEE: column schema, per-column statistics, and a sample of rows — but NOT the full dataset. "
         "For exact aggregate numbers, reason from the provided stats; if a precise figure isn't available, say so plainly.\n\n"
         "When the user asks to change the dashboard (add/remove/modify a chart, change chart type, group differently, "
@@ -131,4 +131,4 @@ async def chat(req: ChatRequest):
         return {"reply": result.get("reply", ""), "spec": result.get("spec")}
     except Exception as e:
         print(f"chat error: {e}")
-        return {"reply": "Có lỗi xảy ra. Vui lòng thử lại.", "spec": None}
+        return {"reply": "Something went wrong. Please try again.", "spec": None}

@@ -41,7 +41,9 @@ Use `type: docs` only when the commit touches docs exclusively.
 
 ## Code Conventions
 
-- **Comments**: English only.
+- **Language**: **English only** — for everything. All UI text, AI prompts/replies,
+  error messages, comments, and docs are in English. (This project does NOT use Vietnamese,
+  unlike job-tracker.)
 - **Frontend styling**: 100% inline styles — no CSS classes/Tailwind/modules.
   Dark theme via CSS vars in `index.css` (shared tienmai.space palette, orange accent).
 - **API namespace**: every route lives under `/api/ai-dashboard/` so Nginx can route to

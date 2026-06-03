@@ -23,8 +23,8 @@ function StatSummary({ col, stats }) {
   if (!s) return null;
   if (col.type === "number") return <span>min {fmt(s.min)} · max {fmt(s.max)} · avg {fmt(s.mean)}</span>;
   if (col.type === "date") return <span>{s.min} → {s.max}</span>;
-  if (col.type === "category") return <span>{s.distinct} nhóm · top: {s.top?.[0]?.value}</span>;
-  return <span>{s.distinct} giá trị khác nhau</span>;
+  if (col.type === "category") return <span>{s.distinct} groups · top: {s.top?.[0]?.value}</span>;
+  return <span>{s.distinct} distinct values</span>;
 }
 
 export default function App() {
@@ -45,7 +45,7 @@ export default function App() {
     try {
       const ds = await getDataset(id);
       if (ds) { setDataset(ds); setSpec(ds.spec || null); }
-    } catch { setError("Không mở được dashboard đã lưu."); }
+    } catch { setError("Couldn't open the saved dashboard."); }
     setLoading(false);
   }, []);
 
@@ -62,7 +62,7 @@ export default function App() {
       setSpec(newSpec);
       await saveDataset({ ...ds, spec: newSpec });
     } catch (e) {
-      setError("AI: " + (e.message || "không tạo được dashboard."));
+      setError("AI: " + (e.message || "couldn't generate the dashboard."));
     }
     setGenerating(false);
   }, []);
@@ -90,7 +90,7 @@ export default function App() {
       refreshSaved();
       runGenerate(ds);
     } catch (e) {
-      setError(e.message || "Không đọc được file.");
+      setError(e.message || "Couldn't read the file.");
       setLoading(false);
     }
   }, [runGenerate]);
@@ -112,7 +112,7 @@ export default function App() {
         {dataset && (
           <button onClick={() => { setDataset(null); setSpec(null); setError(""); }}
             style={{ fontSize: 12, color: "var(--text-muted)", background: "none", border: "1px solid var(--border)", borderRadius: 8, padding: "6px 14px", cursor: "pointer", fontFamily: "var(--font-display)" }}>
-            + File mới
+            + New file
           </button>
         )}
       </header>
@@ -121,10 +121,10 @@ export default function App() {
         {/* Upload state */}
         {!dataset && (
           <div style={{ maxWidth: 560, margin: "60px auto 0", textAlign: "center" }}>
-            <h1 style={{ fontSize: 30, fontWeight: 800, marginBottom: 10 }}>Phân tích data tự động</h1>
+            <h1 style={{ fontSize: 30, fontWeight: 800, marginBottom: 10 }}>Automatic data analysis</h1>
             <p style={{ fontSize: 14, color: "var(--text-muted)", marginBottom: 32, lineHeight: 1.7 }}>
-              Upload file Excel hoặc CSV — AI sẽ phân tích và tạo dashboard cho bạn.
-              Toàn bộ dữ liệu xử lý ngay trên trình duyệt, không gửi lên server.
+              Upload an Excel or CSV file — AI analyzes it and builds a dashboard for you.
+              Everything runs right in your browser; nothing is sent to a server.
             </p>
 
             <div
@@ -141,13 +141,13 @@ export default function App() {
               {loading ? (
                 <>
                   <div style={{ width: 32, height: 32, margin: "0 auto 16px", borderRadius: "50%", border: "3px solid var(--accent)", borderTopColor: "transparent", animation: "spin .8s linear infinite" }} />
-                  <p style={{ fontSize: 14, color: "var(--text-muted)" }}>Đang phân tích dữ liệu...</p>
+                  <p style={{ fontSize: 14, color: "var(--text-muted)" }}>Analyzing data...</p>
                 </>
               ) : (
                 <>
                   <div style={{ fontSize: 40, marginBottom: 12 }}>📊</div>
-                  <p style={{ fontSize: 15, fontWeight: 600, marginBottom: 4 }}>Kéo thả file vào đây</p>
-                  <p style={{ fontSize: 13, color: "var(--text-muted)" }}>hoặc bấm để chọn — .csv, .xlsx, .xls</p>
+                  <p style={{ fontSize: 15, fontWeight: 600, marginBottom: 4 }}>Drag & drop a file here</p>
+                  <p style={{ fontSize: 13, color: "var(--text-muted)" }}>or click to choose — .csv, .xlsx, .xls</p>
                 </>
               )}
               <input ref={fileRef} type="file" accept=".csv,.tsv,.txt,.xlsx,.xls" onChange={e => handleFile(e.target.files?.[0])} style={{ display: "none" }} />
@@ -157,7 +157,7 @@ export default function App() {
 
             {saved.length > 0 && (
               <div style={{ marginTop: 44, textAlign: "left" }}>
-                <h2 style={{ fontSize: 12, fontFamily: "var(--font-mono)", color: "var(--text-muted)", letterSpacing: "0.06em", marginBottom: 12 }}>ĐÃ LƯU ({saved.length})</h2>
+                <h2 style={{ fontSize: 12, fontFamily: "var(--font-mono)", color: "var(--text-muted)", letterSpacing: "0.06em", marginBottom: 12 }}>SAVED ({saved.length})</h2>
                 <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                   {saved.map(s => (
                     <div key={s.id} onClick={() => openSaved(s.id)}
@@ -169,10 +169,10 @@ export default function App() {
                           {s.spec ? "📊 " : "📄 "}{s.name}
                         </div>
                         <div style={{ fontSize: 11, color: "var(--text-muted)", fontFamily: "var(--font-mono)", marginTop: 2 }}>
-                          {s.rowCount?.toLocaleString()} dòng · {s.columns?.length} cột · {new Date(s.createdAt).toLocaleDateString("vi-VN")}
+                          {s.rowCount?.toLocaleString()} rows · {s.columns?.length} cols · {new Date(s.createdAt).toLocaleDateString("en-US")}
                         </div>
                       </div>
-                      <button onClick={e => removeSaved(s.id, e)} title="Xoá"
+                      <button onClick={e => removeSaved(s.id, e)} title="Delete"
                         style={{ flexShrink: 0, width: 28, height: 28, borderRadius: 7, border: "1px solid rgba(248,113,113,0.3)", background: "rgba(248,113,113,0.08)", color: "#f87171", cursor: "pointer", fontSize: 13 }}>✕</button>
                     </div>
                   ))}
@@ -189,11 +189,11 @@ export default function App() {
             <div style={{ display: "flex", alignItems: "baseline", gap: 14, marginBottom: 6, flexWrap: "wrap" }}>
               <h1 style={{ fontSize: 22, fontWeight: 700 }}>{dataset.name}</h1>
               <span style={{ fontSize: 13, color: "var(--text-muted)", fontFamily: "var(--font-mono)" }}>
-                {dataset.rowCount.toLocaleString()} dòng · {dataset.columns.length} cột
+                {dataset.rowCount.toLocaleString()} rows · {dataset.columns.length} cols
               </span>
             </div>
             <p style={{ fontSize: 13, color: "var(--text-muted)", marginBottom: 26 }}>
-              Đã đọc & phân tích xong — dữ liệu xử lý hoàn toàn trên trình duyệt.
+              Parsed & analyzed — everything runs in your browser.
             </p>
 
             {/* AI Dashboard */}
@@ -203,7 +203,7 @@ export default function App() {
                 {spec && !generating && (
                   <button onClick={() => runGenerate(dataset)}
                     style={{ fontSize: 12, color: "var(--text-muted)", background: "none", border: "1px solid var(--border)", borderRadius: 8, padding: "5px 12px", cursor: "pointer", fontFamily: "var(--font-display)" }}>
-                    ↻ Tạo lại
+                    ↻ Regenerate
                   </button>
                 )}
               </div>
@@ -211,7 +211,7 @@ export default function App() {
               {generating && (
                 <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "40px 0", justifyContent: "center" }}>
                   <div style={{ width: 22, height: 22, borderRadius: "50%", border: "2px solid var(--accent)", borderTopColor: "transparent", animation: "spin .8s linear infinite" }} />
-                  <span style={{ fontSize: 14, color: "var(--text-muted)" }}>AI đang thiết kế dashboard...</span>
+                  <span style={{ fontSize: 14, color: "var(--text-muted)" }}>AI is designing your dashboard...</span>
                 </div>
               )}
 
@@ -221,14 +221,14 @@ export default function App() {
                 <div style={{ padding: "24px 0" }}>
                   <button onClick={() => runGenerate(dataset)}
                     style={{ fontSize: 13, padding: "10px 20px", borderRadius: 9, border: "none", background: "var(--accent)", color: "#fff", cursor: "pointer", fontFamily: "var(--font-display)" }}>
-                    ✦ Tạo dashboard với AI
+                    ✦ Generate dashboard with AI
                   </button>
                 </div>
               )}
             </div>
 
             {/* Schema */}
-            <h2 style={{ fontSize: 13, fontFamily: "var(--font-mono)", color: "var(--text-muted)", letterSpacing: "0.06em", marginBottom: 12 }}>CẤU TRÚC DỮ LIỆU</h2>
+            <h2 style={{ fontSize: 13, fontFamily: "var(--font-mono)", color: "var(--text-muted)", letterSpacing: "0.06em", marginBottom: 12 }}>SCHEMA</h2>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))", gap: 10, marginBottom: 36 }}>
               {dataset.columns.map(col => {
                 const c = TYPE_COLORS[col.type];
@@ -247,7 +247,7 @@ export default function App() {
             </div>
 
             {/* Preview */}
-            <h2 style={{ fontSize: 13, fontFamily: "var(--font-mono)", color: "var(--text-muted)", letterSpacing: "0.06em", marginBottom: 12 }}>XEM TRƯỚC (20 DÒNG ĐẦU)</h2>
+            <h2 style={{ fontSize: 13, fontFamily: "var(--font-mono)", color: "var(--text-muted)", letterSpacing: "0.06em", marginBottom: 12 }}>PREVIEW (FIRST 20 ROWS)</h2>
             <div style={{ overflowX: "auto", border: "1px solid var(--border)", borderRadius: 12, background: "var(--bg-card)" }}>
               <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12 }}>
                 <thead>

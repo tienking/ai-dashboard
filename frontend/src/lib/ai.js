@@ -17,7 +17,7 @@ export async function generateDashboard(dataset) {
     headers: { "Content-Type": "application/json" },
     body: payload(dataset),
   });
-  if (!res.ok) throw new Error("Không tạo được dashboard.");
+  if (!res.ok) throw new Error("Couldn't generate the dashboard.");
   return res.json(); // dashboard spec
 }
 
@@ -27,6 +27,6 @@ export async function chatAboutData(dataset, message, currentSpec, history) {
     headers: { "Content-Type": "application/json" },
     body: payload(dataset, { message, current_spec: currentSpec, history }),
   });
-  if (!res.ok) throw new Error("Chat lỗi.");
+  if (!res.ok) throw new Error("Chat request failed.");
   return res.json(); // { reply, spec }
 }

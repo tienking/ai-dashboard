@@ -39,7 +39,7 @@ function ChartBody({ chart }) {
   }
 
   const data = result.data || [];
-  if (!data.length) return <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "100%", color: "#6b7280", fontSize: 12 }}>Không có dữ liệu</div>;
+  if (!data.length) return <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "100%", color: "#6b7280", fontSize: 12 }}>No data</div>;
 
   if (result.kind === "bar" || result.kind === "histogram") {
     return (

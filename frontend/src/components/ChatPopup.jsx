@@ -14,7 +14,7 @@ function renderMd(text) {
   });
 }
 
-const WELCOME = { role: "assistant", content: "Xin chào! Tôi có thể trả lời câu hỏi về data của bạn, hoặc chỉnh sửa dashboard.\nVí dụ: \"Doanh thu cao nhất ở nhóm nào?\" hay \"Đổi biểu đồ cột thành biểu đồ tròn\"." };
+const WELCOME = { role: "assistant", content: "Hi! I can answer questions about your data or edit the dashboard.\nFor example: \"Which group has the highest revenue?\" or \"Turn the bar chart into a pie chart\"." };
 
 function Bubble({ msg }) {
   const isUser = msg.role === "user";
@@ -49,7 +49,7 @@ export default function ChatPopup({ dataset, spec, onSpecUpdate }) {
       setMessages(prev => [...prev, { role: "assistant", content: reply || "—" }]);
       if (newSpec?.charts?.length) onSpecUpdate(newSpec);
     } catch {
-      setMessages(prev => [...prev, { role: "assistant", content: "Có lỗi xảy ra. Vui lòng thử lại." }]);
+      setMessages(prev => [...prev, { role: "assistant", content: "Something went wrong. Please try again." }]);
     }
     setLoading(false);
   };
@@ -63,7 +63,7 @@ export default function ChatPopup({ dataset, spec, onSpecUpdate }) {
           <div style={{ padding: "11px 14px", borderBottom: "1px solid var(--border)", display: "flex", alignItems: "center", justifyContent: "space-between", background: "var(--bg-card)" }}>
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
               <div style={{ width: 7, height: 7, borderRadius: "50%", background: "var(--accent)" }} />
-              <span style={{ fontSize: 13, fontWeight: 600 }}>AI · Hỏi đáp về data</span>
+              <span style={{ fontSize: 13, fontWeight: 600 }}>AI · Ask about your data</span>
             </div>
             <button onClick={() => setOpen(false)} style={{ background: "none", border: "none", color: "var(--text-muted)", cursor: "pointer", fontSize: 20, lineHeight: 1, padding: "0 4px" }}>×</button>
           </div>
@@ -82,7 +82,7 @@ export default function ChatPopup({ dataset, spec, onSpecUpdate }) {
           <div style={{ padding: "10px 12px", borderTop: "1px solid var(--border)", display: "flex", gap: 7, alignItems: "center", background: "var(--bg-card)" }}>
             <textarea value={input} onChange={e => setInput(e.target.value)}
               onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); } }}
-              placeholder="Hỏi về data hoặc yêu cầu sửa chart..." rows={1}
+              placeholder="Ask about your data or request a chart change..." rows={1}
               style={{ flex: 1, border: "1px solid var(--border)", borderRadius: 8, padding: "8px 12px", fontSize: 13, fontFamily: "var(--font-display)", resize: "none", outline: "none", lineHeight: 1.5, background: "var(--bg)", color: "var(--text)" }} />
             <button onClick={send} disabled={!canSend}
               style={{ width: 34, height: 34, borderRadius: 8, border: `1px solid ${canSend ? "var(--accent)" : "var(--border)"}`, background: canSend ? "var(--accent)" : "none", color: canSend ? "#fff" : "var(--text-muted)", cursor: canSend ? "pointer" : "default", fontSize: 16, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>↑</button>

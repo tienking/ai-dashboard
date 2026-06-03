@@ -19,10 +19,10 @@ self.onmessage = async (e) => {
       const sheet = wb.Sheets[wb.SheetNames[0]];
       rows = XLSX.utils.sheet_to_json(sheet, { defval: null });
     } else {
-      throw new Error("Định dạng không hỗ trợ. Chỉ nhận .csv, .xlsx, .xls, .tsv");
+      throw new Error("Unsupported format. Accepts .csv, .xlsx, .xls, .tsv only.");
     }
 
-    if (!rows.length) throw new Error("File không có dữ liệu.");
+    if (!rows.length) throw new Error("The file has no data.");
 
     const { columns, stats } = analyzeColumns(rows);
     self.postMessage({ ok: true, rows, columns, stats, rowCount: rows.length });
