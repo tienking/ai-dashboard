@@ -8,9 +8,23 @@ A full-stack project under the **tienmai.space** umbrella, served at
 
 ---
 
-## Status
+## What it does
 
-🚧 Skeleton only — backend health endpoint + frontend landing page. Features TBD.
+1. **Upload** an Excel/CSV file — parsed entirely in the browser via a Web Worker
+   (PapaParse / SheetJS), so large files (100k+ rows) don't freeze the UI and the
+   raw data never leaves the device.
+2. **Auto schema + stats** — column types (number/date/category/text) and per-column
+   statistics computed client-side.
+3. **AI dashboard** — schema + stats + a 30-row sample are sent to Gemini, which
+   returns a dashboard spec (which charts, which columns, how to aggregate). The
+   frontend aggregates the full dataset client-side and renders with Recharts.
+4. **Chatbot** (bottom-right) — answers questions about the data and can modify the
+   dashboard on request (AI returns an updated spec applied live).
+5. **Saved dashboards** — datasets + specs persist in IndexedDB (client-side only,
+   0 bytes on the VPS). Reopen or delete from the start screen.
+
+> Privacy/cost by design: the VPS stores no uploaded data and the AI only ever
+> receives a compact summary (schema + stats + small sample), never the full rows.
 
 ---
 
@@ -55,6 +69,7 @@ ai-dashboard/
 python -m venv ai-dashboard-venv
 source ai-dashboard-venv/bin/activate    # Windows: ai-dashboard-venv\Scripts\activate
 pip install -r requirements.txt
+cp .env.example .env                      # set GEMINI_API_KEY
 uvicorn main:app --port 8002
 
 # Frontend (separate terminal)
@@ -70,9 +85,24 @@ npm run dev                              # proxies /api/ to http://127.0.0.1:800
 | Method | Path | Description |
 |--------|------|-------------|
 | GET | `/api/ai-dashboard/health` | Health check → `{status, service}` |
+| POST | `/api/ai-dashboard/generate` | schema+stats+sample → dashboard spec |
+| POST | `/api/ai-dashboard/chat` | Q&A about the data; may return an updated spec |
 
 All routes are namespaced under `/api/ai-dashboard/` so Nginx can route this
 project's API to port 8002 without clashing with other projects on the domain.
+The backend is a thin Gemini proxy — it never receives or stores raw data.
+
+### Dashboard spec (shared contract between AI and the renderer)
+
+```json
+{ "title": "...", "charts": [
+  { "type": "kpi|bar|line|area|pie|scatter|histogram|table",
+    "title": "...", "x": "<col>", "y": "<col>", "agg": "sum|avg|count|min|max",
+    "limit": 12, "bins": 20 }
+]}
+```
+
+Requires `GEMINI_API_KEY` in `.env` (reuses the tienmai-space key).
 
 ---
 
