@@ -1,6 +1,8 @@
 import { useState, useRef, useCallback } from "react";
 import { parseFile } from "./lib/parse";
 import { saveDataset } from "./lib/db";
+import { generateDashboard } from "./lib/ai";
+import Charts from "./components/Charts";
 
 const TYPE_COLORS = {
   number:   { bg: "rgba(96,165,250,0.15)",  fg: "#60a5fa" },
@@ -26,14 +28,28 @@ function StatSummary({ col, stats }) {
 
 export default function App() {
   const [dataset, setDataset] = useState(null);
+  const [spec, setSpec] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [generating, setGenerating] = useState(false);
   const [error, setError] = useState("");
   const [dragOver, setDragOver] = useState(false);
   const fileRef = useRef(null);
 
+  const runGenerate = useCallback(async (ds) => {
+    setGenerating(true); setSpec(null);
+    try {
+      const newSpec = await generateDashboard(ds);
+      setSpec(newSpec);
+      await saveDataset({ ...ds, spec: newSpec });
+    } catch (e) {
+      setError("AI: " + (e.message || "không tạo được dashboard."));
+    }
+    setGenerating(false);
+  }, []);
+
   const handleFile = useCallback(async (file) => {
     if (!file) return;
-    setError(""); setLoading(true); setDataset(null);
+    setError(""); setLoading(true); setDataset(null); setSpec(null);
     try {
       const { rows, columns, stats, rowCount } = await parseFile(file);
       const ds = {
@@ -44,11 +60,13 @@ export default function App() {
       };
       await saveDataset(ds);
       setDataset(ds);
+      setLoading(false);
+      runGenerate(ds);
     } catch (e) {
       setError(e.message || "Không đọc được file.");
+      setLoading(false);
     }
-    setLoading(false);
-  }, []);
+  }, [runGenerate]);
 
   const onDrop = (e) => {
     e.preventDefault(); setDragOver(false);
@@ -65,7 +83,7 @@ export default function App() {
           <p style={{ fontSize: 14, fontWeight: 600 }}>tienmai.space</p>
         </div>
         {dataset && (
-          <button onClick={() => { setDataset(null); setError(""); }}
+          <button onClick={() => { setDataset(null); setSpec(null); setError(""); }}
             style={{ fontSize: 12, color: "var(--text-muted)", background: "none", border: "1px solid var(--border)", borderRadius: 8, padding: "6px 14px", cursor: "pointer", fontFamily: "var(--font-display)" }}>
             + File mới
           </button>
@@ -123,8 +141,39 @@ export default function App() {
               </span>
             </div>
             <p style={{ fontSize: 13, color: "var(--text-muted)", marginBottom: 26 }}>
-              Đã đọc & phân tích xong. (Phase tiếp theo: AI sinh dashboard tự động.)
+              Đã đọc & phân tích xong — dữ liệu xử lý hoàn toàn trên trình duyệt.
             </p>
+
+            {/* AI Dashboard */}
+            <div style={{ marginBottom: 38 }}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
+                <h2 style={{ fontSize: 13, fontFamily: "var(--font-mono)", color: "var(--text-muted)", letterSpacing: "0.06em" }}>DASHBOARD (AI)</h2>
+                {spec && !generating && (
+                  <button onClick={() => runGenerate(dataset)}
+                    style={{ fontSize: 12, color: "var(--text-muted)", background: "none", border: "1px solid var(--border)", borderRadius: 8, padding: "5px 12px", cursor: "pointer", fontFamily: "var(--font-display)" }}>
+                    ↻ Tạo lại
+                  </button>
+                )}
+              </div>
+
+              {generating && (
+                <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "40px 0", justifyContent: "center" }}>
+                  <div style={{ width: 22, height: 22, borderRadius: "50%", border: "2px solid var(--accent)", borderTopColor: "transparent", animation: "spin .8s linear infinite" }} />
+                  <span style={{ fontSize: 14, color: "var(--text-muted)" }}>AI đang thiết kế dashboard...</span>
+                </div>
+              )}
+
+              {!generating && spec && <Charts spec={spec} rows={dataset.rows} />}
+
+              {!generating && !spec && (
+                <div style={{ padding: "24px 0" }}>
+                  <button onClick={() => runGenerate(dataset)}
+                    style={{ fontSize: 13, padding: "10px 20px", borderRadius: 9, border: "none", background: "var(--accent)", color: "#fff", cursor: "pointer", fontFamily: "var(--font-display)" }}>
+                    ✦ Tạo dashboard với AI
+                  </button>
+                </div>
+              )}
+            </div>
 
             {/* Schema */}
             <h2 style={{ fontSize: 13, fontFamily: "var(--font-mono)", color: "var(--text-muted)", letterSpacing: "0.06em", marginBottom: 12 }}>CẤU TRÚC DỮ LIỆU</h2>
