@@ -1,0 +1,14 @@
+[Unit]
+Description=AI Dashboard FastAPI App
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/root/projects/ai-dashboard
+EnvironmentFile=/root/projects/ai-dashboard/.env
+ExecStart=/root/projects/ai-dashboard/ai-dashboard-venv/bin/uvicorn main:app --host 127.0.0.1 --port 8002
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
