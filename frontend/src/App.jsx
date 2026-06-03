@@ -1,6 +1,6 @@
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { parseFile } from "./lib/parse";
-import { saveDataset } from "./lib/db";
+import { saveDataset, listDatasets, getDataset, deleteDataset } from "./lib/db";
 import { generateDashboard } from "./lib/ai";
 import Charts from "./components/Charts";
 import ChatPopup from "./components/ChatPopup";
@@ -34,7 +34,26 @@ export default function App() {
   const [generating, setGenerating] = useState(false);
   const [error, setError] = useState("");
   const [dragOver, setDragOver] = useState(false);
+  const [saved, setSaved] = useState([]);
   const fileRef = useRef(null);
+
+  const refreshSaved = useCallback(() => { listDatasets().then(setSaved).catch(() => {}); }, []);
+  useEffect(() => { refreshSaved(); }, [refreshSaved]);
+
+  const openSaved = useCallback(async (id) => {
+    setError(""); setLoading(true);
+    try {
+      const ds = await getDataset(id);
+      if (ds) { setDataset(ds); setSpec(ds.spec || null); }
+    } catch { setError("Không mở được dashboard đã lưu."); }
+    setLoading(false);
+  }, []);
+
+  const removeSaved = useCallback(async (id, e) => {
+    e.stopPropagation();
+    await deleteDataset(id);
+    refreshSaved();
+  }, [refreshSaved]);
 
   const runGenerate = useCallback(async (ds) => {
     setGenerating(true); setSpec(null);
@@ -68,6 +87,7 @@ export default function App() {
       await saveDataset(ds);
       setDataset(ds);
       setLoading(false);
+      refreshSaved();
       runGenerate(ds);
     } catch (e) {
       setError(e.message || "Không đọc được file.");
@@ -134,6 +154,31 @@ export default function App() {
             </div>
 
             {error && <p style={{ fontSize: 13, color: "#f87171", marginTop: 16 }}>{error}</p>}
+
+            {saved.length > 0 && (
+              <div style={{ marginTop: 44, textAlign: "left" }}>
+                <h2 style={{ fontSize: 12, fontFamily: "var(--font-mono)", color: "var(--text-muted)", letterSpacing: "0.06em", marginBottom: 12 }}>ĐÃ LƯU ({saved.length})</h2>
+                <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                  {saved.map(s => (
+                    <div key={s.id} onClick={() => openSaved(s.id)}
+                      style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, padding: "11px 14px", borderRadius: 11, border: "1px solid var(--border)", background: "var(--bg-card)", cursor: "pointer", transition: "border-color .15s" }}
+                      onMouseEnter={e => e.currentTarget.style.borderColor = "var(--border-hover)"}
+                      onMouseLeave={e => e.currentTarget.style.borderColor = "var(--border)"}>
+                      <div style={{ minWidth: 0 }}>
+                        <div style={{ fontSize: 13, fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                          {s.spec ? "📊 " : "📄 "}{s.name}
+                        </div>
+                        <div style={{ fontSize: 11, color: "var(--text-muted)", fontFamily: "var(--font-mono)", marginTop: 2 }}>
+                          {s.rowCount?.toLocaleString()} dòng · {s.columns?.length} cột · {new Date(s.createdAt).toLocaleDateString("vi-VN")}
+                        </div>
+                      </div>
+                      <button onClick={e => removeSaved(s.id, e)} title="Xoá"
+                        style={{ flexShrink: 0, width: 28, height: 28, borderRadius: 7, border: "1px solid rgba(248,113,113,0.3)", background: "rgba(248,113,113,0.08)", color: "#f87171", cursor: "pointer", fontSize: 13 }}>✕</button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         )}
 
