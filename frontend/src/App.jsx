@@ -5,28 +5,6 @@ import { generateDashboard } from "./lib/ai";
 import Charts from "./components/Charts";
 import ChatPopup from "./components/ChatPopup";
 
-const TYPE_COLORS = {
-  number:   { bg: "rgba(96,165,250,0.15)",  fg: "#60a5fa" },
-  date:     { bg: "rgba(167,139,250,0.15)", fg: "#a78bfa" },
-  category: { bg: "rgba(74,222,128,0.15)",  fg: "#4ade80" },
-  text:     { bg: "rgba(156,163,175,0.15)", fg: "#9ca3af" },
-};
-
-const fmt = (n) => {
-  if (typeof n !== "number" || !Number.isFinite(n)) return "—";
-  if (Math.abs(n) >= 1000) return n.toLocaleString("en-US", { maximumFractionDigits: 1 });
-  return n.toLocaleString("en-US", { maximumFractionDigits: 2 });
-};
-
-function StatSummary({ col, stats }) {
-  const s = stats[col.name];
-  if (!s) return null;
-  if (col.type === "number") return <span>min {fmt(s.min)} · max {fmt(s.max)} · avg {fmt(s.mean)}</span>;
-  if (col.type === "date") return <span>{s.min} → {s.max}</span>;
-  if (col.type === "category") return <span>{s.distinct} groups · top: {s.top?.[0]?.value}</span>;
-  return <span>{s.distinct} distinct values</span>;
-}
-
 export default function App() {
   const [dataset, setDataset] = useState(null);
   const [spec, setSpec] = useState(null);
@@ -117,7 +95,7 @@ export default function App() {
         )}
       </header>
 
-      <main style={{ flex: 1, maxWidth: 1200, width: "100%", margin: "0 auto", padding: "28px 28px 60px" }}>
+      <main style={{ flex: 1, width: "100%", padding: "28px 32px 60px" }}>
         {/* Upload state */}
         {!dataset && (
           <div style={{ maxWidth: 560, margin: "60px auto 0", textAlign: "center" }}>
@@ -225,25 +203,6 @@ export default function App() {
                   </button>
                 </div>
               )}
-            </div>
-
-            {/* Schema */}
-            <h2 style={{ fontSize: 13, fontFamily: "var(--font-mono)", color: "var(--text-muted)", letterSpacing: "0.06em", marginBottom: 12 }}>SCHEMA</h2>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))", gap: 10, marginBottom: 36 }}>
-              {dataset.columns.map(col => {
-                const c = TYPE_COLORS[col.type];
-                return (
-                  <div key={col.name} style={{ background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: 12, padding: "12px 14px" }}>
-                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, marginBottom: 6 }}>
-                      <span style={{ fontSize: 13, fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{col.name}</span>
-                      <span style={{ fontSize: 10, fontFamily: "var(--font-mono)", padding: "2px 7px", borderRadius: 5, background: c.bg, color: c.fg, flexShrink: 0 }}>{col.type}</span>
-                    </div>
-                    <div style={{ fontSize: 11, color: "var(--text-muted)", fontFamily: "var(--font-mono)", lineHeight: 1.5 }}>
-                      <StatSummary col={col} stats={dataset.stats} />
-                    </div>
-                  </div>
-                );
-              })}
             </div>
 
             {/* Preview */}
