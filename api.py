@@ -33,7 +33,7 @@ SPEC_DOC = """
 Dashboard spec = JSON object:
 {
   "title": "<short dashboard title>",
-  "charts": [ <chart>, ... ]    // 3-6 charts
+  "charts": [ <chart>, ... ]    // 10-14 items total (including KPIs)
 }
 
 chart = {
@@ -60,7 +60,10 @@ Rules:
 - "table": x = a category column, y = numeric measure with agg → a small ranked table.
 - Only use column names that exist. Pick the chart type that best fits each insight — VARY the types
   (mix bar/hbar, line/area, donut/pie/radial/treemap) instead of using the same type repeatedly.
-- Mix 1-2 KPIs with 4-6 varied charts.
+- Be COMPREHENSIVE: produce 4-5 KPIs and 7-10 charts (10-14 items total). Analyze the data from many
+  angles — overall totals, a breakdown for EACH important categorical column, trends over every date
+  column, distributions of key numeric columns, correlations between numeric pairs, and top-N rankings.
+  Don't stop at a few charts; cover the dataset thoroughly.
 """
 
 def _build_data_context(columns, stats, sample, row_count):
@@ -94,7 +97,7 @@ async def generate(req: GenerateRequest):
         resp = client.models.generate_content(
             model=GEMINI_MODEL,
             contents=[types.Content(role="user", parts=[types.Part(text=prompt)])],
-            config=types.GenerateContentConfig(temperature=0.3),
+            config=types.GenerateContentConfig(temperature=0.3, max_output_tokens=8192),
         )
         return _extract_json(resp.text)
     except Exception as e:
