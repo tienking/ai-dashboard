@@ -1,10 +1,10 @@
 # AI Dashboard
 
-A full-stack project under the **tienmai.space** umbrella, served at
-[tienmai.space/projects/ai-dashboard](https://tienmai.space/projects/ai-dashboard).
+Upload an Excel or CSV file and get an AI-generated, interactive dashboard — with a
+chatbot that answers questions about your data and edits the charts on request. Files
+are parsed entirely in the browser, so your data never leaves your device.
 
-> First entry in the `projects/` collection. Each project is an independent
-> full-stack app (own repo, own backend port) served under `/projects/<name>`.
+🔗 **Live:** [tienmai.space/projects/ai-dashboard](https://tienmai.space/projects/ai-dashboard)
 
 ---
 
