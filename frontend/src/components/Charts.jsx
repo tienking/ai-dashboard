@@ -210,9 +210,9 @@ export default function Charts({ spec, rows }) {
     <div>
       {spec.title && <h2 style={{ fontSize: 18, fontWeight: 700, marginBottom: 16 }}>{spec.title}</h2>}
 
-      {/* KPIs — compact row at the top */}
+      {/* KPIs — one full-width row, columns split evenly by count */}
       {kpis.length > 0 && (
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: 14, marginBottom: 14 }}>
+        <div style={{ display: "grid", gridTemplateColumns: `repeat(${kpis.length}, minmax(0, 1fr))`, gap: 14, marginBottom: 14 }}>
           {kpis.map((chart, i) => (
             <div key={i} style={card}>
               <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 6, color: "var(--text-muted)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{chart.title}</div>
@@ -222,8 +222,8 @@ export default function Charts({ spec, rows }) {
         </div>
       )}
 
-      {/* Charts */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(360px, 1fr))", gap: 14 }}>
+      {/* Charts — fixed 3 columns */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 14 }}>
         {rest.map((chart, i) => (
           <div key={i} style={card}>
             <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 10, color: "var(--text)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{chart.title}</div>
