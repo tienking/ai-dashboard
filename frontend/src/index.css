@@ -17,8 +17,8 @@
   --accent: #ec563d;
   --accent-dim: rgba(236, 86, 61, 0.12);
   --accent-border: rgba(236, 86, 61, 0.3);
-  --font-display: 'Syne', sans-serif;
-  --font-mono: 'DM Mono', monospace;
+  --font-display: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
 }
 
 html,
@@ -29,6 +29,11 @@ body,
   color: var(--text);
   font-family: var(--font-display);
   -webkit-font-smoothing: antialiased;
+}
+
+/* Tabular figures keep numbers aligned across cards/charts. */
+.tnum, table td, table th {
+  font-variant-numeric: tabular-nums;
 }
 
 ::-webkit-scrollbar { width: 4px; }

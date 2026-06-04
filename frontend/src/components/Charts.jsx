@@ -7,7 +7,7 @@ import { computeChart } from "../lib/aggregate";
 
 const ACCENT = "#ec563d";
 const PALETTE = ["#ec563d", "#60a5fa", "#4ade80", "#a78bfa", "#fbbf24", "#f472b6", "#22d3ee", "#fb923c", "#a3e635", "#e879f9", "#2dd4bf", "#f87171"];
-const AXIS = { fontSize: 11, fill: "#6b7280", fontFamily: "DM Mono, monospace" };
+const AXIS = { fontSize: 11, fill: "#6b7280", fontFamily: "Inter, sans-serif" };
 const GRID = "rgba(255,255,255,0.06)";
 
 const fmt = (n) => {
@@ -28,7 +28,7 @@ const truncTick = (v) => {
 };
 
 const tooltipStyle = {
-  contentStyle: { background: "#1a1a1a", border: "1px solid rgba(255,255,255,0.12)", borderRadius: 8, fontSize: 12, fontFamily: "DM Mono, monospace" },
+  contentStyle: { background: "#1a1a1a", border: "1px solid rgba(255,255,255,0.12)", borderRadius: 8, fontSize: 12, fontFamily: "Inter, sans-serif" },
   labelStyle: { color: "#f0f0f0" },
   itemStyle: { color: "#9ca3af" },
 };
@@ -40,8 +40,8 @@ function ChartBody({ chart }) {
   if (result.kind === "kpi") {
     return (
       <div style={{ display: "flex", flexDirection: "column", justifyContent: "center", height: "100%", padding: "8px 4px" }}>
-        <div style={{ fontSize: 34, fontWeight: 800, color: ACCENT, lineHeight: 1.1, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{fmt(result.value)}</div>
-        <div style={{ fontSize: 12, color: "#6b7280", marginTop: 6, fontFamily: "DM Mono, monospace", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+        <div style={{ fontSize: 34, fontWeight: 800, color: ACCENT, lineHeight: 1.1, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", fontVariantNumeric: "tabular-nums", letterSpacing: "-0.01em" }}>{fmt(result.value)}</div>
+        <div style={{ fontSize: 12, color: "#6b7280", marginTop: 6, fontFamily: "Inter, sans-serif", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
           {chart.agg || "sum"}{chart.y ? ` · ${chart.y}` : ""}
         </div>
       </div>
@@ -92,7 +92,7 @@ function ChartBody({ chart }) {
             {data.map((_, i) => <Cell key={i} fill={PALETTE[i % PALETTE.length]} stroke="none" />)}
           </Pie>
           <Tooltip {...tooltipStyle} formatter={(v) => fmt(v)} />
-          <Legend wrapperStyle={{ fontSize: 11, fontFamily: "DM Mono, monospace" }} />
+          <Legend wrapperStyle={{ fontSize: 11, fontFamily: "Inter, sans-serif" }} />
         </PieChart>
       </ResponsiveContainer>
     );
@@ -120,7 +120,7 @@ function ChartBody({ chart }) {
             {data.map((d, i) => (
               <tr key={i} style={{ borderBottom: "1px solid var(--border)" }}>
                 <td style={{ padding: "6px 8px", color: "var(--text)" }}>{d.name}</td>
-                <td style={{ padding: "6px 8px", textAlign: "right", color: ACCENT, fontFamily: "DM Mono, monospace" }}>{fmt(d.value)}</td>
+                <td style={{ padding: "6px 8px", textAlign: "right", color: ACCENT, fontFamily: "Inter, sans-serif", fontVariantNumeric: "tabular-nums", fontWeight: 600 }}>{fmt(d.value)}</td>
               </tr>
             ))}
           </tbody>
