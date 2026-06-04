@@ -1,7 +1,7 @@
 import {
   ResponsiveContainer, BarChart, Bar, LineChart, Line, AreaChart, Area,
   PieChart, Pie, Cell, ScatterChart, Scatter, XAxis, YAxis, CartesianGrid,
-  Tooltip, Legend,
+  Tooltip, Legend, RadialBarChart, RadialBar, Treemap,
 } from "recharts";
 import { computeChart } from "../lib/aggregate";
 
@@ -32,6 +32,22 @@ const tooltipStyle = {
   labelStyle: { color: "#f0f0f0" },
   itemStyle: { color: "#9ca3af" },
 };
+
+function TreemapCell(props) {
+  const { x, y, width, height, name, fill } = props;
+  const show = width > 50 && height > 22;
+  return (
+    <g>
+      <rect x={x} y={y} width={width} height={height} fill={fill} stroke="#1a1a1a" strokeWidth={2} rx={3} />
+      {show && (
+        <text x={x + 7} y={y + 17} fill="#fff" fontSize={11} fontFamily="Inter, sans-serif" fontWeight={600}
+          style={{ pointerEvents: "none" }}>
+          {String(name).length > Math.floor(width / 7) ? String(name).slice(0, Math.floor(width / 7)) + "…" : name}
+        </text>
+      )}
+    </g>
+  );
+}
 
 function ChartBody({ chart }) {
   const result = chart._computed;
@@ -84,16 +100,64 @@ function ChartBody({ chart }) {
     );
   }
 
-  if (result.kind === "pie") {
+  if (result.kind === "pie" || result.kind === "donut") {
+    const donut = result.kind === "donut";
+    const total = data.reduce((s, d) => s + d.value, 0);
+    return (
+      <div style={{ position: "relative", height: "100%" }}>
+        <ResponsiveContainer width="100%" height="100%">
+          <PieChart>
+            <Pie data={data} dataKey="value" nameKey="name" cx="50%" cy="46%" outerRadius="80%" innerRadius={donut ? "58%" : 0} paddingAngle={donut ? 2 : 0}>
+              {data.map((_, i) => <Cell key={i} fill={PALETTE[i % PALETTE.length]} stroke="none" />)}
+            </Pie>
+            <Tooltip {...tooltipStyle} formatter={(v) => fmt(v)} />
+            <Legend wrapperStyle={{ fontSize: 11, fontFamily: "Inter, sans-serif" }} />
+          </PieChart>
+        </ResponsiveContainer>
+        {donut && (
+          <div style={{ position: "absolute", top: "46%", left: 0, right: 0, textAlign: "center", transform: "translateY(-50%)", pointerEvents: "none" }}>
+            <div style={{ fontSize: 19, fontWeight: 800, color: "var(--text)", fontVariantNumeric: "tabular-nums" }}>{fmt(total)}</div>
+            <div style={{ fontSize: 10, color: "#6b7280" }}>Total</div>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  if (result.kind === "hbar") {
     return (
       <ResponsiveContainer width="100%" height="100%">
-        <PieChart>
-          <Pie data={data} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius="78%" innerRadius="45%" paddingAngle={2}>
-            {data.map((_, i) => <Cell key={i} fill={PALETTE[i % PALETTE.length]} stroke="none" />)}
-          </Pie>
+        <BarChart data={data} layout="vertical" margin={{ top: 4, right: 14, left: 0, bottom: 0 }}>
+          <CartesianGrid stroke={GRID} horizontal={false} />
+          <XAxis type="number" tick={AXIS} tickFormatter={fmt} tickLine={false} axisLine={{ stroke: GRID }} />
+          <YAxis type="category" dataKey="name" tick={AXIS} width={120} tickFormatter={(v) => String(v).length > 17 ? String(v).slice(0, 16) + "…" : v} tickLine={false} axisLine={false} />
+          <Tooltip {...tooltipStyle} cursor={{ fill: "rgba(255,255,255,0.04)" }} formatter={(v) => fmt(v)} />
+          <Bar dataKey="value" fill={ACCENT} radius={[0, 4, 4, 0]} />
+        </BarChart>
+      </ResponsiveContainer>
+    );
+  }
+
+  if (result.kind === "radial") {
+    const top = data.slice(0, 7).map((d, i) => ({ ...d, fill: PALETTE[i % PALETTE.length] }));
+    return (
+      <ResponsiveContainer width="100%" height="100%">
+        <RadialBarChart data={top} innerRadius="22%" outerRadius="100%" startAngle={90} endAngle={-270}>
+          <RadialBar dataKey="value" cornerRadius={4} background={{ fill: "rgba(255,255,255,0.04)" }} />
           <Tooltip {...tooltipStyle} formatter={(v) => fmt(v)} />
-          <Legend wrapperStyle={{ fontSize: 11, fontFamily: "Inter, sans-serif" }} />
-        </PieChart>
+          <Legend iconSize={9} layout="vertical" align="right" verticalAlign="middle" wrapperStyle={{ fontSize: 11, fontFamily: "Inter, sans-serif" }} />
+        </RadialBarChart>
+      </ResponsiveContainer>
+    );
+  }
+
+  if (result.kind === "treemap") {
+    const td = data.map((d, i) => ({ name: d.name, size: d.value, fill: PALETTE[i % PALETTE.length] }));
+    return (
+      <ResponsiveContainer width="100%" height="100%">
+        <Treemap data={td} dataKey="size" stroke="#1a1a1a" isAnimationActive={false} content={<TreemapCell />}>
+          <Tooltip {...tooltipStyle} formatter={(v) => fmt(v)} />
+        </Treemap>
       </ResponsiveContainer>
     );
   }

@@ -37,24 +37,30 @@ Dashboard spec = JSON object:
 }
 
 chart = {
-  "type": "kpi" | "bar" | "line" | "area" | "pie" | "scatter" | "histogram" | "table",
+  "type": "kpi" | "bar" | "hbar" | "line" | "area" | "pie" | "donut" | "radial" | "treemap" | "scatter" | "histogram" | "table",
   "title": "<chart title>",
-  "x":      "<column name>",     // dimension (category/date for bar/line/area/pie; number for scatter/histogram)
+  "x":      "<column name>",     // dimension (category/date for most; number for scatter/histogram)
   "y":      "<column name>",     // measure (numeric column); omit for count-based charts
   "agg":    "sum" | "avg" | "count" | "min" | "max",   // how to aggregate y over each x group
   "bins":   <int>,               // histogram only (default 20)
-  "limit":  <int>                // bar/pie/table: keep top-N groups (default 12)
+  "limit":  <int>                // grouped charts: keep top-N groups (default 12)
 }
 
 Rules:
 - "kpi": one headline number. Use y + agg (e.g. total revenue = sum of "amount"). No x.
-- "bar"/"pie": x = a category column, y = numeric measure with agg (or omit y to count rows).
-- "line"/"area": x = a date column (or ordered category), y = numeric measure with agg. Good for trends.
+- "bar": x = a category column, y = numeric measure with agg (or omit y to count rows). Best for short labels.
+- "hbar": horizontal bar — SAME as bar but better when category names are long. Prefer hbar over bar when labels are long.
+- "line"/"area": x = a date column (or ordered category), y = numeric measure with agg. Good for trends over time.
+- "pie": x = category, y = measure — proportions of a whole (use when ≤6 groups).
+- "donut": like pie but with a hollow center showing the total. Use for a clean part-to-whole view.
+- "radial": x = category, y = measure — stylish ranking of the top groups (use for ≤7 groups).
+- "treemap": x = category, y = measure — composition/share when there are many groups.
 - "scatter": x and y both numeric columns. Shows correlation.
 - "histogram": x = a numeric column. Shows distribution.
 - "table": x = a category column, y = numeric measure with agg → a small ranked table.
-- Only use column names that exist. Pick charts that reveal the most useful insights for this data.
-- Mix 1-2 KPIs with several charts.
+- Only use column names that exist. Pick the chart type that best fits each insight — VARY the types
+  (mix bar/hbar, line/area, donut/pie/radial/treemap) instead of using the same type repeatedly.
+- Mix 1-2 KPIs with 4-6 varied charts.
 """
 
 def _build_data_context(columns, stats, sample, row_count):

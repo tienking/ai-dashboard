@@ -85,7 +85,11 @@ export function computeChart(chart, rows) {
     case "kpi":
       return { kind: "kpi", value: aggregate(rows.map((r) => (chart.y ? r[chart.y] : 1)), chart.agg || "sum") };
     case "bar":
+    case "hbar":
     case "pie":
+    case "donut":
+    case "radial":
+    case "treemap":
     case "table":
       return { kind: chart.type, data: groupBy(rows, chart.x, chart.y, chart.agg, limit) };
     case "line":
