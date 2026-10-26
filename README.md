@@ -129,7 +129,7 @@ Requires `GEMINI_API_KEY` in `.env` (reuses the tienmai-space key). Model is set
 
 ## Deployment
 
-> **Which build is live?** The UI shows `v <commit> · <build time>` in the bottom-left corner of every page, stamped by `frontend/vite.config.js` at build time. After the CI pipeline finishes it should match `git log -1 --format=%h` — if not, the deploy didn't run or the build failed.
+> **Which version is live?** The UI shows `v<x.y.z>` in the bottom-left corner of every page — the `version` from `frontend/package.json`, bumped on every code change. After the CI pipeline finishes it should match `package.json` on `main` — if not, the deploy didn't run or the build failed.
 
 Auto-deploy via GitLab CI/CD on push to `main`. On the VPS:
 
